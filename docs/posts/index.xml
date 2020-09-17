@@ -13,10 +13,10 @@
     
     <item>
       <title>Golang基础库sort包-API及简单原理</title>
-      <link>https://shrek7.github.io/posts/blog_name/</link>
+      <link>https://shrek7.github.io/posts/1.golang%E5%9F%BA%E7%A1%80%E5%BA%93sort%E5%8C%85-api%E5%8F%8A%E7%AE%80%E5%8D%95%E5%8E%9F%E7%90%86/</link>
       <pubDate>Tue, 15 Sep 2020 10:15:48 +0800</pubDate>
       
-      <guid>https://shrek7.github.io/posts/blog_name/</guid>
+      <guid>https://shrek7.github.io/posts/1.golang%E5%9F%BA%E7%A1%80%E5%BA%93sort%E5%8C%85-api%E5%8F%8A%E7%AE%80%E5%8D%95%E5%8E%9F%E7%90%86/</guid>
       <description>最近的项目中用到了数组排序以及查找功能，Golang基础库sort包提供了这些能力，无需自己来实现。这一篇先介绍一下sort包提供的API以及基本的实现原理，详细的排序算法实现后续文章再介绍。Go版本go1.14
  0x0 总结先行  sort包提供的排序算法分为非稳定版本Sort和稳定版本Stable，Sort用到了快速排序、堆排序以及插入排序，Stable则是用到的分段插入排序和merge排序。大多数情况下，使用Sort即可 排序可以直接调用Sort，自行封装Interface接口，也可以用闭包的形式调用Slice函数。大部分情况下两者看自己喜好，底层实现是一致的 sort包对int，float64，string基本类型的切片进行了封装，其他类型可以参考其封装方式自行封装 sort包的查找(Search方法)要避免踩坑，升序数组中查找值为num的索引，应该写成data[i]&amp;gt;=num，而不是data[i]==num  0x1 从sort.Sort开始 // Sort 排序方法，根据data.Less(i,j) 提供的比较方法排序 func Sort(data Interface) { n := data.Len() quickSort(data, 0, n, maxDepth(n)) } // Interface 实现者通常是某个结构的切片 type Interface interface { // 返回元素的数量 	Len() int // 自定义大小返回规则，判定索引为i的元素是否小于索引为j的元素 	Less(i, j int) bool // 自定义元素交换规则，交换索引为i的元素于索引为j的原色 	Swap(i, j int) } 个人理解由于Go目前不支持泛型，因此想要一套代码支持所有基本类型数据或者自定义结构数据的排序，需要借助接口来实现。纵观所有排序算法，对于被排序的数组，可以抽象出三个操作：
  需要有方法获取数组的长度 需要有方法来比较元素间的大小 需要有方法来在元素顺序不满足需求时，交换元素位置  这也就是官方要定义Interface这个接口的原因了（吐槽一下Interface这个名字，生怕别人不知道这是个接口）
